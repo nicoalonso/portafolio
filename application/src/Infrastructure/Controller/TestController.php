@@ -9,11 +9,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class TestController extends AbstractController
 {
-    /**
-     * @Route("/", name="home")
-     */
     public function home(): Response
     {
-        return new JsonResponse([]);
+        return new JsonResponse(['test' => 123456]);
     }
 }
