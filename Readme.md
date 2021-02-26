@@ -9,3 +9,10 @@ cd docker
 docker-compose -p portafolio -f docker-compose.yml up -d
 ```
 
+Acceder al contenedor `php-fpm` e instalar los `vendors`:
+
+```bash
+docker exec -it portafolio_php_fpm_1 bash
+php -d memory_limit=-1 /usr/local/bin/composer install
+```
+
