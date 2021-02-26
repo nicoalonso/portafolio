@@ -30,4 +30,5 @@ RUN apt-get update && \
     useradd nico -m -u 1000 && \
     # Alias
     echo 'alias ll="ls -l"' >> ~/.bashrc && \
-    echo 'alias sf="php bin/console"' >> ~/.bashrc
+    echo 'alias sf="php bin/console"' >> ~/.bashrc && \
+    echo 'alias sfunit="php -d memory_limit=-1 bin/phpunit"' >> ~/.bashrc
