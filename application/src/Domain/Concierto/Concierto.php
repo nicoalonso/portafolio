@@ -61,15 +61,27 @@ class Concierto
 
     public function rentabilidad(): int
     {
-        $gastos = $this->recinto->costeAlquiler();
-        $beneficios = $this->numeroEspectadores * $this->recinto->precioEntrada();
+        $gastos = $this->calcGastos();
+        $beneficios = $this->calcBeneficios();
+        $this->rentabilidad = $beneficios - $gastos;
+        return $this->rentabilidad;
+    }
 
-        foreach ($grupos as $grupo) {
+    public function calcGastos(): int
+    {
+        $gastos = $this->recinto->costeAlquiler();
+        $beneficios = $this->calcBeneficios();
+
+        foreach ($this->grupos as $grupo) {
             $gastoGrupo = $grupo->cache() + ($beneficios * self::GRUPO_COMISSION_PERCENT);
             $gastos += $gastoGrupo;
         }
+        return (int) $gastos;
+    }
 
-        return $beneficios - $gastos;
+    public function calcBeneficios(): int
+    {
+        return $this->numeroEspectadores * $this->recinto->precioEntrada();
     }
 
     public function addGrupo(Grupo $grupo): void
@@ -105,10 +117,5 @@ class Concierto
     public function fecha(): DateTimeImmutable
     {
         return $this->fecha;
-    }
-
-    public function rentabilidad(): int
-    {
-        return $this->rentabilidad;
     }
 }
