@@ -1,0 +1,11 @@
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+    <entity name="App\Domain\Recinto\Recinto" table="recintos">
+        <id name="id" column="id" type="recintoId" />
+        <field name="nombre" type="string" length="100" />
+        <field name="costeAlquiler" column="coste_alquiler" type="integer" />
+        <field name="precioEntrada" column="precio_entrada" type="integer" />
+    </entity>
+</doctrine-mapping>

@@ -20,3 +20,9 @@ docker exec -it portafolio_php_fpm_1 bash
 php -d memory_limit=-1 /usr/local/bin/composer install
 ```
 
+Ejecutar migraciones:
+
+```bash
+php bin/console doctrine:migrations:migrate
+```
+
