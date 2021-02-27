@@ -2,5 +2,8 @@
 #    path: /
 #    controller: App\Controller\DefaultController::index
 
-test:
-    resource: routes/test.yml
+home:
+    resource: routes/home.yml
+
+concierto:
+    resource: routes/concierto.yml

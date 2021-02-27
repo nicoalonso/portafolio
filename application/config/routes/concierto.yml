@@ -1,0 +1,3 @@
+concierto_create:
+  path: /concierto/create
+  controller: App\Infrastructure\Controller\Concierto\ConciertoController::create

@@ -2,15 +2,17 @@
 
 namespace App\Infrastructure\Controller;
 
+use App\Infrastructure\Controller\Identity\Result;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-final class TestController extends AbstractController
+final class HomeController extends AbstractController
 {
     public function home(): Response
     {
-        return new JsonResponse(['test' => 123456]);
+        $result = Result::success();
+        return new JsonResponse($result);
     }
 }
