@@ -14,6 +14,6 @@ class GrupoRepositoryStub implements GrupoRepository
 
     public function obtainById(string $grupoId): ?Grupo
     {
-
+        return null;
     }
 }

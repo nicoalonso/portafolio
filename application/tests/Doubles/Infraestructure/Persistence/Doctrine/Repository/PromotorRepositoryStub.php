@@ -8,6 +8,8 @@ use App\Domain\Promotor\PromotorRepository;
 
 class PromotorRepositoryStub implements PromotorRepository
 {
+    public $promotorReturn = null;
+
     public function save(Promotor $promotor): void
     {
 
@@ -15,6 +17,6 @@ class PromotorRepositoryStub implements PromotorRepository
 
     public function obtainById(string $promotorId): ?Promotor
     {
-        
+        return $this->promotorReturn;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Tests\Application\Concierto\Creator;
 
 use App\Application\Concierto\Creator\ConciertoCreate;
 use App\Application\Concierto\Creator\ConciertoCreateException;
+use App\Domain\Promotor\Promotor;
 use App\Tests\Doubles\Infraestructure\Persistence\Doctrine\Repository\ConciertoRepositoryStub;
 use App\Tests\Doubles\Infraestructure\Persistence\Doctrine\Repository\GrupoRepositoryStub;
 use App\Tests\Doubles\Infraestructure\Persistence\Doctrine\Repository\MedioPublicitarioRepositoryStub;
@@ -54,6 +55,36 @@ class ConciertoCreateTest extends TestCase
 
     public function testShouldFailWhenPromotorNotFound(): void
     {
-        
+        $this->expectException(ConciertoCreateException::class);
+        $this->expectExceptionMessage('No se ha localizado el promotor');
+
+        $data = [
+            'nombre' => 'Test',
+            'fecha' => '25/06/2021',
+            'numero_espectadores' => 10000,
+            'promotor_id' => 'abcdef-dddd-abcdef',
+            'recinto_id' => 'abcdef-dddd-abcdef',
+            'grupos' => [],
+            'medios' => [],
+        ];
+        $this->creator->dispatch($data);
+    }
+
+    public function testShouldFailWhenRecintoNotFound(): void
+    {
+        $this->expectException(ConciertoCreateException::class);
+        $this->expectExceptionMessage('Recinto no encontrado');
+
+        $this->repoPromotorStub->promotorReturn = new Promotor('nico', 'nico@dummy.com');
+        $data = [
+            'nombre' => 'Test',
+            'fecha' => '25/06/2021',
+            'numero_espectadores' => 10000,
+            'promotor_id' => 'abcdef-dddd-abcdef',
+            'recinto_id' => 'abcdef-dddd-abcdef',
+            'grupos' => [],
+            'medios' => [],
+        ];
+        $this->creator->dispatch($data);
     }
 }
