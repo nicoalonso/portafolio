@@ -31,3 +31,11 @@ services:
     App\Infrastructure\EventListener\RequestJsonListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request }
+
+    # Domain handlers
+    domain_handlers:
+        namespace: App\Application\
+        resource: '%kernel.project_dir%/src/Application/**/*DomainHandler.php'
+        autoconfigure: false
+        tags:
+            - { name: messenger.message_handler, bus: domain.bus }

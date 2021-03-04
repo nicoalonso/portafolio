@@ -2,6 +2,7 @@
 
 namespace App\Application\Concierto\Creator;
 
+use App\Domain\Bus\DomainBus;
 use App\Domain\Concierto\Concierto;
 use App\Domain\Concierto\ConciertoRepository;
 use App\Domain\Exception\DateFormatException;
@@ -16,7 +17,6 @@ use App\Domain\Promotor\PromotorRepository;
 use App\Domain\Recinto\Recinto;
 use App\Domain\Recinto\RecintoNotFoundException;
 use App\Domain\Recinto\RecintoRepository;
-use App\Domain\Services\MailNotify;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -46,7 +46,7 @@ final class ConciertoCreate extends AbstractController
     private GrupoRepository $repoGrupo;
     private PromotorRepository $repoPromotor;
     private MedioPublicitarioRepository $repoMedio;
-    private MailNotify $notifier;
+    private DomainBus $domainBus;
 
     public function __construct(
         ConciertoRepository $repoConcierto,
@@ -54,14 +54,14 @@ final class ConciertoCreate extends AbstractController
         GrupoRepository $repoGrupo,
         PromotorRepository $repoPromotor,
         MedioPublicitarioRepository $repoMedio,
-        MailNotify $notifier
+        DomainBus $domainBus
     ) {
         $this->repoConcierto = $repoConcierto;
         $this->repoRecinto = $repoRecinto;
         $this->repoGrupo = $repoGrupo;
         $this->repoPromotor = $repoPromotor;
         $this->repoMedio = $repoMedio;
-        $this->notifier = $notifier;
+        $this->domainBus = $domainBus;
     }
 
     public function dispatch(array $conciertoData): void
@@ -83,7 +83,7 @@ final class ConciertoCreate extends AbstractController
         $newConcierto = new Concierto($nombre, $promotor, $recinto, $numeroEspectadores, $fecha, $grupos, $medios);
         $this->repoConcierto->save($newConcierto);
 
-        $this->notify($newConcierto);
+        $this->domainBus->dispatch(new ConciertoCreatedEvent($newConcierto));
     }
 
     /**
@@ -152,14 +152,5 @@ final class ConciertoCreate extends AbstractController
             $validMedios[] = $medioFound;
         }
         return $validMedios;
-    }
-
-    private function notify(Concierto $concierto): void
-    {
-        $rentabilidad = $concierto->rentabilidad();
-        $mensaje = ($rentabilidad < 0) ? self::PERDIDAS_MAIL_BODY: self::GANANCIAS_MAIL_BODY;
-        $body = sprintf($mensaje, $rentabilidad);
-        $address = $concierto->promotor()->email();
-        $this->notifier->sendMail($address, $body);
     }
 }
