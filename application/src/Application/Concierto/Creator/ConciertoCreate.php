@@ -4,11 +4,16 @@ namespace App\Application\Concierto\Creator;
 
 use App\Domain\Concierto\Concierto;
 use App\Domain\Concierto\ConciertoRepository;
+use App\Domain\Exception\DateFormatException;
+use App\Domain\Grupo\GrupoNotFoundException;
 use App\Domain\Grupo\GrupoRepository;
+use App\Domain\MedioPublicitario\MedioNotFoundException;
 use App\Domain\MedioPublicitario\MedioPublicitarioRepository;
 use App\Domain\Promotor\Promotor;
+use App\Domain\Promotor\PromotorNotFoundException;
 use App\Domain\Promotor\PromotorRepository;
 use App\Domain\Recinto\Recinto;
+use App\Domain\Recinto\RecintoNotFoundException;
 use App\Domain\Recinto\RecintoRepository;
 use App\Domain\Services\MailNotify;
 use DateTimeImmutable;
@@ -33,7 +38,6 @@ final class ConciertoCreate extends AbstractController
     private const MEDIO_NOT_FOUND = 'Medio no encontrado';
     private const PERDIDAS_MAIL_BODY = "El evento ha tenido unas perdidas de %d";
     private const GANANCIAS_MAIL_BODY = "El evento ha tenido unas ganancias de %d";
-
 
     private ConciertoRepository $repoConcierto;
     private RecintoRepository $repoRecinto;
@@ -78,7 +82,7 @@ final class ConciertoCreate extends AbstractController
     {
         $date = DateTimeImmutable::createFromFormat(self::DATE_INPUT_FORMAT, $dateValue);
         if (false === $date) {
-            throw new ConciertoCreateException(self::DATE_FORMAT_ERROR);
+            throw new DateFormatException(self::DATE_FORMAT_ERROR);
         }
         return $date;
     }
@@ -87,7 +91,7 @@ final class ConciertoCreate extends AbstractController
     {
         $promotor = $this->repoPromotor->obtainById($promotorId);
         if (null === $promotor) {
-            throw new ConciertoCreateException(self::PROMOTOR_NOT_FOUND_ERROR);
+            throw new PromotorNotFoundException(self::PROMOTOR_NOT_FOUND_ERROR);
         }
         return $promotor;
     }
@@ -96,7 +100,7 @@ final class ConciertoCreate extends AbstractController
     {
         $recinto = $this->repoRecinto->obtainById($recintoId);
         if (null === $recinto) {
-            throw new ConciertoCreateException(self::RECINTO_NOT_FOUND_ERROR);
+            throw new RecintoNotFoundException(self::RECINTO_NOT_FOUND_ERROR);
         }
         return $recinto;
     }
@@ -107,7 +111,7 @@ final class ConciertoCreate extends AbstractController
         foreach ($grupos as $grupoId) {
             $grupoFound = $this->repoGrupo->obtainById($grupoId);
             if (null === $grupoFound) {
-                throw new ConciertoCreateException(self::GRUPO_NOT_FOUND);
+                throw new GrupoNotFoundException(self::GRUPO_NOT_FOUND);
             }
             $validGrupos[] = $grupoFound;
         }
@@ -120,7 +124,7 @@ final class ConciertoCreate extends AbstractController
         foreach ($medios as $medioId) {
             $medioFound = $this->repoMedio->obtainById($medioId);
             if (null === $medioFound) {
-                throw new ConciertoCreateException(self::MEDIO_NOT_FOUND);
+                throw new MedioNotFoundException(self::MEDIO_NOT_FOUND);
             }
             $validMedios = $medioFound;
         }
