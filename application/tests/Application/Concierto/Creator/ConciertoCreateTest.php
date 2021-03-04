@@ -5,6 +5,7 @@ namespace App\Tests\Application\Concierto\Creator;
 use App\Application\Concierto\Creator\ConciertoCreate;
 use App\Application\Concierto\Creator\ConciertoCreateException;
 use App\Domain\Exception\DateFormatException;
+use App\Domain\Exception\FieldRequiredException;
 use App\Domain\Grupo\Grupo;
 use App\Domain\Grupo\GrupoNotFoundException;
 use App\Domain\MedioPublicitario\MedioNotFoundException;
@@ -49,6 +50,63 @@ class ConciertoCreateTest extends TestCase
         );
     }
 
+    public function testShouldFailWhenEmptyData(): void
+    {
+        $this->expectException(FieldRequiredException::class);
+        $this->expectExceptionMessage('nombre es obligatorio');
+
+        $data = [];
+        $this->creator->dispatch($data);
+    }
+
+    public function testShouldFailWhenFechaIsRequired(): void
+    {
+        $this->expectException(FieldRequiredException::class);
+        $this->expectExceptionMessage('promotor_id es obligatorio');
+
+        $data = [
+            'nombre' => 'Test',
+            'fecha' => '----',
+        ];
+        $this->creator->dispatch($data);
+    }
+
+    public function testShouldFailWhenPromotorIsRequired(): void
+    {
+        $this->expectException(FieldRequiredException::class);
+        $this->expectExceptionMessage('promotor_id es obligatorio');
+
+        $data = [
+            'nombre' => 'Test',
+            'fecha' => '----',
+        ];
+        $this->creator->dispatch($data);
+    }
+
+    public function testShouldFailWhenRecintoIsRequired(): void
+    {
+        $this->expectException(FieldRequiredException::class);
+        $this->expectExceptionMessage('recinto_id es obligatorio');
+
+        $data = [
+            'nombre' => 'Test',
+            'fecha' => '----',
+            'promotor_id' => 'aaaaaa-aaaaa-aaaaaa',
+        ];
+        $this->creator->dispatch($data);
+    }
+
+    public function testShouldFailWhenWrongNoDate(): void
+    {
+        $this->expectException(FieldRequiredException::class);
+        $this->expectExceptionMessage('fecha es obligatorio');
+
+        $data = [
+            'nombre' => 'Test',
+        ];
+        $this->creator->dispatch($data);
+    }
+
     public function testShouldFailWhenWrongDate(): void
     {
         $this->expectException(DateFormatException::class);
@@ -56,6 +114,8 @@ class ConciertoCreateTest extends TestCase
         $data = [
             'nombre' => 'Test',
             'fecha' => '----',
+            'promotor_id' => '',
+            'recinto_id' => '',
         ];
         $this->creator->dispatch($data);
     }

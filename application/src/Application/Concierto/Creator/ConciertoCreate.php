@@ -5,6 +5,7 @@ namespace App\Application\Concierto\Creator;
 use App\Domain\Concierto\Concierto;
 use App\Domain\Concierto\ConciertoRepository;
 use App\Domain\Exception\DateFormatException;
+use App\Domain\Exception\FieldRequiredException;
 use App\Domain\Grupo\GrupoNotFoundException;
 use App\Domain\Grupo\GrupoRepository;
 use App\Domain\MedioPublicitario\MedioNotFoundException;
@@ -31,6 +32,7 @@ final class ConciertoCreate extends AbstractController
     private const GRUPOS_JSON_KEY = 'grupos';
     private const MEDIOS_JSON_KEY = 'medios';
     //
+    private const FIELD_REQUIRED = "%s es obligatorio";
     private const DATE_FORMAT_ERROR = 'Formato de fecha incorrecto';
     private const PROMOTOR_NOT_FOUND_ERROR = 'No se ha localizado el promotor';
     private const RECINTO_NOT_FOUND_ERROR = 'Recinto no encontrado';
@@ -64,18 +66,39 @@ final class ConciertoCreate extends AbstractController
 
     public function dispatch(array $conciertoData): void
     {
-        $nombre = (string) $conciertoData[self::NOMBRE_JSON_KEY];
-        $fecha = $this->getValidDateOrFail((string) $conciertoData[self::FECHA_JSON_KEY]);
-        $numeroEspectadores = (int) $conciertoData[self::ESPECTADORES_JSON_KEY];
-        $promotor = $this->getValidPromotorOrFail((string) $conciertoData[self::PROMOTOR_JSON_KEY]);
-        $recinto = $this->getValidRecintoOrFail((string) $conciertoData[self::RECINTO_JSON_KEY]);
-        $grupos = $this->getValidGruposOrFail((array) $conciertoData[self::GRUPOS_JSON_KEY]);
-        $medios = $this->getValidMediosOrFail((array) $conciertoData[self::MEDIOS_JSON_KEY]);
+        $nombre = (string) $this->getValue($conciertoData, self::NOMBRE_JSON_KEY);
+        $numeroEspectadores = (int) $this->getValue($conciertoData, self::ESPECTADORES_JSON_KEY, 0);
+        $fechaInput = (string) $this->getValue($conciertoData, self::FECHA_JSON_KEY);
+        $promotorId = (string) $this->getValue($conciertoData, self::PROMOTOR_JSON_KEY);
+        $recintoId = (string) $this->getValue($conciertoData, self::RECINTO_JSON_KEY);
+        $grupoList = (array) $this->getValue($conciertoData, self::GRUPOS_JSON_KEY, []);
+        $medioList = (array) $this->getValue($conciertoData, self::MEDIOS_JSON_KEY, []);
+
+        $fecha = $this->getValidDateOrFail($fechaInput);
+        $promotor = $this->getValidPromotorOrFail($promotorId);
+        $recinto = $this->getValidRecintoOrFail($recintoId);
+        $grupos = $this->getValidGruposOrFail($grupoList);
+        $medios = $this->getValidMediosOrFail($medioList);
 
         $newConcierto = new Concierto($nombre, $promotor, $recinto, $numeroEspectadores, $fecha, $grupos, $medios);
         $this->repoConcierto->save($newConcierto);
 
         $this->notify($newConcierto);
+    }
+
+    /**
+     * @param  ?mixed $default  !null is optional
+     * @return mixed
+     */
+    private function getValue(array $data, string $key, $default = null)
+    {
+        if (!array_key_exists($key, $data)) {
+            if (null === $default) {
+                throw new FieldRequiredException(sprintf(self::FIELD_REQUIRED, $key));
+            }
+            return $default;
+        }
+        return $data[$key];
     }
 
     private function getValidDateOrFail(string $dateValue): DateTimeImmutable
