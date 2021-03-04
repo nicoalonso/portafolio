@@ -8,6 +8,9 @@ use App\Domain\MedioPublicitario\MedioPublicitarioRepository;
 
 class MedioPublicitarioRepositoryStub implements MedioPublicitarioRepository
 {
+    /** @var MedioPublicitario[] */
+    public array $medioById = [];
+
     public function save(MedioPublicitario $medio): void
     {
 
@@ -15,6 +18,9 @@ class MedioPublicitarioRepositoryStub implements MedioPublicitarioRepository
 
     public function obtainById(string $medioId): ?MedioPublicitario
     {
-        return null;
+        if (!array_key_exists($medioId, $this->medioById)) {
+            return null;
+        }
+        return $this->medioById[$medioId];
     }
 }

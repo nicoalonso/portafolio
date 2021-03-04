@@ -126,7 +126,7 @@ final class ConciertoCreate extends AbstractController
             if (null === $medioFound) {
                 throw new MedioNotFoundException(self::MEDIO_NOT_FOUND);
             }
-            $validMedios = $medioFound;
+            $validMedios[] = $medioFound;
         }
         return $validMedios;
     }

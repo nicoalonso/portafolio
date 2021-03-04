@@ -4,7 +4,15 @@ namespace App\Tests\Application\Concierto\Creator;
 
 use App\Application\Concierto\Creator\ConciertoCreate;
 use App\Application\Concierto\Creator\ConciertoCreateException;
+use App\Domain\Exception\DateFormatException;
+use App\Domain\Grupo\Grupo;
+use App\Domain\Grupo\GrupoNotFoundException;
+use App\Domain\MedioPublicitario\MedioNotFoundException;
+use App\Domain\MedioPublicitario\MedioPublicitario;
 use App\Domain\Promotor\Promotor;
+use App\Domain\Promotor\PromotorNotFoundException;
+use App\Domain\Recinto\Recinto;
+use App\Domain\Recinto\RecintoNotFoundException;
 use App\Tests\Doubles\Infraestructure\Persistence\Doctrine\Repository\ConciertoRepositoryStub;
 use App\Tests\Doubles\Infraestructure\Persistence\Doctrine\Repository\GrupoRepositoryStub;
 use App\Tests\Doubles\Infraestructure\Persistence\Doctrine\Repository\MedioPublicitarioRepositoryStub;
@@ -43,8 +51,7 @@ class ConciertoCreateTest extends TestCase
 
     public function testShouldFailWhenWrongDate(): void
     {
-        $this->expectException(ConciertoCreateException::class);
-        $this->expectExceptionMessage('Formato de fecha incorrecto');
+        $this->expectException(DateFormatException::class);
 
         $data = [
             'nombre' => 'Test',
@@ -55,8 +62,7 @@ class ConciertoCreateTest extends TestCase
 
     public function testShouldFailWhenPromotorNotFound(): void
     {
-        $this->expectException(ConciertoCreateException::class);
-        $this->expectExceptionMessage('No se ha localizado el promotor');
+        $this->expectException(PromotorNotFoundException::class);
 
         $data = [
             'nombre' => 'Test',
@@ -72,8 +78,7 @@ class ConciertoCreateTest extends TestCase
 
     public function testShouldFailWhenRecintoNotFound(): void
     {
-        $this->expectException(ConciertoCreateException::class);
-        $this->expectExceptionMessage('Recinto no encontrado');
+        $this->expectException(RecintoNotFoundException::class);
 
         $this->repoPromotorStub->promotorReturn = new Promotor('nico', 'nico@dummy.com');
         $data = [
@@ -86,5 +91,151 @@ class ConciertoCreateTest extends TestCase
             'medios' => [],
         ];
         $this->creator->dispatch($data);
+    }
+
+    public function testShouldfailWhenGrupoNotFound(): void
+    {
+        $this->expectException(GrupoNotFoundException::class);
+
+        $this->repoPromotorStub->promotorReturn = new Promotor('nico', 'nico@dummy.com');
+        $this->repoRecintoStub->recintoReturn = new Recinto('IFEMA', 10000, 250);
+
+        $data = [
+            'nombre' => 'Test',
+            'fecha' => '25/06/2021',
+            'numero_espectadores' => 10000,
+            'promotor_id' => 'abcdef-dddd-abcdef',
+            'recinto_id' => 'abcdef-dddd-abcdef',
+            'grupos' => [
+                'aaaaaa-aaaaa-aaaaaa',
+            ],
+            'medios' => [],
+        ];
+        $this->creator->dispatch($data);
+    }
+
+    public function testShouldFailWhenMedioNotFound(): void
+    {
+        $this->expectException(MedioNotFoundException::class);
+
+        $this->repoPromotorStub->promotorReturn = new Promotor('nico', 'nico@dummy.com');
+        $this->repoRecintoStub->recintoReturn = new Recinto('IFEMA', 10000, 250);
+        $this->repoGrupoStub->grupoById = [
+            'aaaaaa-aaaaa-aaaaaa' => new Grupo('ACDC', 42000),
+            'bbbbbb-bbbbb-bbbbbb' => new Grupo('The Beatles', 35000),
+        ];
+
+        $data = [
+            'nombre' => 'Test',
+            'fecha' => '25/06/2021',
+            'numero_espectadores' => 10000,
+            'promotor_id' => 'abcdef-dddd-abcdef',
+            'recinto_id' => 'abcdef-dddd-abcdef',
+            'grupos' => [
+                'aaaaaa-aaaaa-aaaaaa',
+                'bbbbbb-bbbbb-bbbbbb',
+            ],
+            'medios' => [
+                'cccccc-ccccc-cccccc',
+            ],
+        ];
+        $this->creator->dispatch($data);
+    }
+
+    public function testShouldSaveConciertoWhenDataIsOK(): void
+    {
+        $this->repoPromotorStub->promotorReturn = new Promotor('nico', 'nico@dummy.com');
+        $this->repoRecintoStub->recintoReturn = new Recinto('IFEMA', 10000, 250);
+        $this->repoGrupoStub->grupoById = [
+            'aaaaaa-aaaaa-aaaaaa' => new Grupo('ACDC', 42000),
+            'bbbbbb-bbbbb-bbbbbb' => new Grupo('The Beatles', 35000),
+        ];
+        $this->repoMedioStub->medioById = [
+            'cccccc-ccccc-cccccc' => new MedioPublicitario('Interview'),
+        ];
+
+        $data = [
+            'nombre' => 'Test',
+            'fecha' => '25/06/2021',
+            'numero_espectadores' => 10000,
+            'promotor_id' => 'abcdef-dddd-abcdef',
+            'recinto_id' => 'abcdef-dddd-abcdef',
+            'grupos' => [
+                'aaaaaa-aaaaa-aaaaaa',
+                'bbbbbb-bbbbb-bbbbbb',
+            ],
+            'medios' => [
+                'cccccc-ccccc-cccccc',
+            ],
+        ];
+        $this->creator->dispatch($data);
+
+        $this->assertNotNull($this->repoConciertoStub->conciertoSaved);
+    }
+
+    public function testShouldNotifyWhenCreateConciertoWithGanancias(): void
+    {
+        $this->repoPromotorStub->promotorReturn = new Promotor('nico', 'nico@dummy.com');
+        $this->repoRecintoStub->recintoReturn = new Recinto('IFEMA', 10000, 250);
+        $this->repoGrupoStub->grupoById = [
+            'aaaaaa-aaaaa-aaaaaa' => new Grupo('ACDC', 42000),
+            'bbbbbb-bbbbb-bbbbbb' => new Grupo('The Beatles', 35000),
+        ];
+        $this->repoMedioStub->medioById = [
+            'cccccc-ccccc-cccccc' => new MedioPublicitario('Interview'),
+        ];
+
+        $data = [
+            'nombre' => 'Test',
+            'fecha' => '25/06/2021',
+            'numero_espectadores' => 10000,
+            'promotor_id' => 'abcdef-dddd-abcdef',
+            'recinto_id' => 'abcdef-dddd-abcdef',
+            'grupos' => [
+                'aaaaaa-aaaaa-aaaaaa',
+                'bbbbbb-bbbbb-bbbbbb',
+            ],
+            'medios' => [
+                'cccccc-ccccc-cccccc',
+            ],
+        ];
+        $this->creator->dispatch($data);
+
+        $this->assertEquals('nico@dummy.com', $this->notifierStub->mailAddress);
+        $bodyExpected = 'El evento ha tenido unas ganancias de 1913000';
+        $this->assertEquals($bodyExpected, $this->notifierStub->mailBody);
+    }
+
+    public function testShouldNotifyWhenCreateConciertoWithPerdidas(): void
+    {
+        $this->repoPromotorStub->promotorReturn = new Promotor('nico', 'nico@dummy.com');
+        $this->repoRecintoStub->recintoReturn = new Recinto('IFEMA', 10000, 250);
+        $this->repoGrupoStub->grupoById = [
+            'aaaaaa-aaaaa-aaaaaa' => new Grupo('ACDC', 42000),
+            'bbbbbb-bbbbb-bbbbbb' => new Grupo('The Beatles', 35000),
+        ];
+        $this->repoMedioStub->medioById = [
+            'cccccc-ccccc-cccccc' => new MedioPublicitario('Interview'),
+        ];
+
+        $data = [
+            'nombre' => 'Test',
+            'fecha' => '25/06/2021',
+            'numero_espectadores' => 10,
+            'promotor_id' => 'abcdef-dddd-abcdef',
+            'recinto_id' => 'abcdef-dddd-abcdef',
+            'grupos' => [
+                'aaaaaa-aaaaa-aaaaaa',
+                'bbbbbb-bbbbb-bbbbbb',
+            ],
+            'medios' => [
+                'cccccc-ccccc-cccccc',
+            ],
+        ];
+        $this->creator->dispatch($data);
+
+        $this->assertEquals('nico@dummy.com', $this->notifierStub->mailAddress);
+        $bodyExpected = 'El evento ha tenido unas perdidas de -85000';
+        $this->assertEquals($bodyExpected, $this->notifierStub->mailBody);
     }
 }

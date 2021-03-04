@@ -8,8 +8,10 @@ use App\Domain\Concierto\ConciertoRepository;
 
 class ConciertoRepositoryStub implements ConciertoRepository
 {
+    public Concierto $conciertoSaved;
+
     public function save(Concierto $concierto): void
     {
-        
+        $this->conciertoSaved = $concierto;
     }
 }

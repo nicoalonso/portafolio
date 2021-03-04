@@ -8,7 +8,7 @@ use App\Domain\Promotor\PromotorRepository;
 
 class PromotorRepositoryStub implements PromotorRepository
 {
-    public $promotorReturn = null;
+    public ?Promotor $promotorReturn = null;
 
     public function save(Promotor $promotor): void
     {

@@ -7,6 +7,8 @@ use App\Domain\Recinto\RecintoRepository;
 
 class RecintoRepositoryStub implements RecintoRepository
 {
+    public ?Recinto $recintoReturn = null;
+
     public function save(Recinto $recinto): void
     {
 
@@ -14,6 +16,6 @@ class RecintoRepositoryStub implements RecintoRepository
 
     public function obtainById(string $recintoId): ?Recinto
     {
-        return null;
+        return $this->recintoReturn;
     }
 }

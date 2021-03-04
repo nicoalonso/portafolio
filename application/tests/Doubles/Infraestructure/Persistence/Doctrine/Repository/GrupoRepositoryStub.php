@@ -7,6 +7,9 @@ use App\Domain\Grupo\GrupoRepository;
 
 class GrupoRepositoryStub implements GrupoRepository
 {
+    /** @var Grupo[] */
+    public array $grupoById = [];
+
     public function save(Grupo $grupo): void
     {
 
@@ -14,6 +17,10 @@ class GrupoRepositoryStub implements GrupoRepository
 
     public function obtainById(string $grupoId): ?Grupo
     {
-        return null;
+        if (!array_key_exists($grupoId, $this->grupoById)) {
+            return null;
+        }
+
+        return $this->grupoById[$grupoId];
     }
 }
