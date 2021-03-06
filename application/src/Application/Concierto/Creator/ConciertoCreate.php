@@ -38,8 +38,6 @@ final class ConciertoCreate extends AbstractController
     private const RECINTO_NOT_FOUND_ERROR = 'Recinto no encontrado';
     private const GRUPO_NOT_FOUND = 'No se ha encontrado el grupo';
     private const MEDIO_NOT_FOUND = 'Medio no encontrado';
-    private const PERDIDAS_MAIL_BODY = "El evento ha tenido unas perdidas de %d";
-    private const GANANCIAS_MAIL_BODY = "El evento ha tenido unas ganancias de %d";
 
     private ConciertoRepository $repoConcierto;
     private RecintoRepository $repoRecinto;

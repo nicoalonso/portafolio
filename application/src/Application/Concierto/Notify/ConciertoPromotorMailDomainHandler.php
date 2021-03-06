@@ -8,6 +8,9 @@ use App\Domain\Services\MailNotify;
 
 final class ConciertoPromotorMailDomainHandler
 {
+    private const PERDIDAS_MAIL_BODY = "El evento ha tenido unas perdidas de %d";
+    private const GANANCIAS_MAIL_BODY = "El evento ha tenido unas ganancias de %d";
+
     public function __construct(MailNotify $notifier)
     {
         $this->notifier = $notifier;

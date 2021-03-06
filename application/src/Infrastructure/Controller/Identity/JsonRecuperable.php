@@ -15,7 +15,7 @@ trait JsonRecuperable
             throw new BadRequestHttpException('JSON Data not found');
         }
 
-        $this->jsonData = (array) $request->attributes->set('jsonData');
+        $this->jsonData = (array) $request->attributes->get('jsonData');
         return $this->jsonData;
     }
 }
