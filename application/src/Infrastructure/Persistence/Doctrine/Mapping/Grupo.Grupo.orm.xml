@@ -6,5 +6,6 @@
         <id name="id" column="id" type="grupoId" />
         <field name="nombre" type="string" length="100" />
         <field name="cache" type="integer" />
+        <field name="email" type="string" length="100" />
     </entity>
 </doctrine-mapping>

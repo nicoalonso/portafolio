@@ -94,6 +94,11 @@ class Concierto
         $this->medios[] = $medio;
     }
 
+    public function id(): string
+    {
+        return (string) $this->id;
+    }
+
     public function nombre(): string
     {
         return $this->nombre;

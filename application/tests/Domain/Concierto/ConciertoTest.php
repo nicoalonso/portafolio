@@ -33,6 +33,7 @@ class ConciertoTest extends TestCase
     {
         $this->assertEquals('Test', (string) $this->concierto);
         $this->assertEquals('Test', $this->concierto->nombre());
+        $this->assertNotEmpty($this->concierto->id());
         $this->assertEquals($this->promotor, $this->concierto->promotor());
         $this->assertEquals($this->recinto, $this->concierto->recinto());
         $this->assertEquals(50000, $this->concierto->numeroEspectadores());

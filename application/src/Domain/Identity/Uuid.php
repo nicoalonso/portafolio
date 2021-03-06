@@ -17,14 +17,14 @@ abstract class Uuid
         $this->value = $value;
     }
 
-    private function isValidUuidOrFail(string $value) : void
+    private function isValidUuidOrFail(string $value): void
     {
         if (!RamseyUuid::isValid($value) || self::UUID_VERSION !== RamseyUuid::fromString($value)->getFields()->getVersion()) {
             throw new DomainException($value ." is not a valid type of ". static::class);
         }
     }
 
-    public static function generate() : self
+    public static function generate(): self
     {
         return new static(RamseyUuid::uuid4()->toString());
     }
@@ -34,7 +34,7 @@ abstract class Uuid
         return $this->value;
     }
 
-    public function value() : string
+    public function value(): string
     {
         return $this->value;
     }
