@@ -123,4 +123,19 @@ class Concierto
     {
         return $this->fecha;
     }
+
+    public function fechaWithFormat(string $format = DATE_ATOM): string
+    {
+        return $this->fecha->format($format);
+    }
+
+    public function grupos(): array
+    {
+        return $this->grupos->toArray();
+    }
+
+    public function medios(): array
+    {
+        return $this->medios->toArray();
+    }
 }

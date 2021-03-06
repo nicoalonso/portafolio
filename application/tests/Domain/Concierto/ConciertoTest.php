@@ -40,6 +40,10 @@ class ConciertoTest extends TestCase
         $this->assertEquals(250000, $this->concierto->calcBeneficios());
         $this->assertEquals(5000, $this->concierto->calcGastos());
         $this->assertEquals(245000, $this->concierto->rentabilidad());
+        $this->assertNotNull($this->concierto->fecha());
+        $this->assertNotEmpty($this->concierto->fechaWithFormat());
+        $this->assertCount(0, $this->concierto->grupos());
+        $this->assertCount(0, $this->concierto->medios());
     }
 
     public function testShouldGananciasWhenCacheGruposEsMenor(): void
@@ -54,6 +58,7 @@ class ConciertoTest extends TestCase
         $this->assertEquals(250000, $this->concierto->calcBeneficios());
         $this->assertEquals(83500, $this->concierto->calcGastos());
         $this->assertEquals(166500, $this->concierto->rentabilidad());
+        $this->assertCount(3, $this->concierto->grupos());
     }
 
     public function testShouldPerdidasWhenCacheGruposEsMenor(): void
